@@ -23,7 +23,7 @@ import mysql
 import mysql.connector
 import main
 
-def create_new_savings_account(name,mobile_number,city,mail,dob):
+def create_new_account(account_choice,name,mobile_number,city,mail,dob):
    
     print("Server Connected")
     print("sending your data")
@@ -31,12 +31,14 @@ def create_new_savings_account(name,mobile_number,city,mail,dob):
     
     data = (f'{name}', f'{mobile_number}', f'{city}',f'{mail}',f'{dob}')
     
-    main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savingsAccountUsers (name,mobile_number,city,mail,dob) VALUES (%s,%s,%s,%s,%s)",data)
+    if(account_choice == 1):
+        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savingsAccountUsers (name,mobile_number,city,mail,dob) VALUES (%s,%s,%s,%s,%s)",data)
+        print("Succesfully Created your Savings account😁😊😁")
+    elif(account_choice == 2):
+        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO currentAccountUsers (name,mobile_number,city,mail,dob) VALUES (%s,%s,%s,%s,%s)",data)
+        print("Succesfully Created your Current account😁😊😁")
+        
     main.bank_Database_Connection.commit()
-    
-    print("Succesfully Created your Savings account😁😊😁")
-    
-    
 
 
 # Welcome Message
@@ -58,16 +60,14 @@ if(user_acc_check == 1):
     mail = input("Please Enter Your Email ID: ")
     dob_of_customer = input("Please Enter Your date of birth (NO SPECIAL CHARS LIKE slash,dash or commas)(DDMMYYYY): ")
     
-    customer_choice_account_type = int(input("Please Select The type of Account You want to open (You can Read about account opening ,their types and benefits on www.blog.com):\n\n 1. Savings Account\n\n2. Current Acount\n\n3. Joint Account  : "))
-    
-    if(customer_choice_account_type == 1):
-        print("Okay , Please Wait Processing Your Request With Server")
-        # Connection to mysql bankdatabase 
-        try:
-            create_new_savings_account(customer_name1,mobile_number,city,mail,dob_of_customer)            
+    customer_choice_account_type = int(input("Please Select The type of Account You want to open\n1. Savings Account\n2. Current Acount\n3. Joint Account \n(You can Read about account opening ,their types and benefits on www.blog.com): "))
+    print("Okay , Please Wait Processing Your Request With Server")
+    # Connection to mysql bankdatabase 
+    try:
+        create_new_account(customer_choice_account_type,customer_name1,mobile_number,city,mail,dob_of_customer)       
+    except:
+        print("Sorry , Server Down")
             
-        except:
-            print("Sorry , Server Down")
         
         
     
