@@ -64,10 +64,8 @@ except:
 # Creating table for user registration in bank_Database
 try:
     cursor_to_create_tables_in_bank_Database = bank_Database_Connection.cursor()
-    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE savings_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(255),mobile_number INT(10),city VARCHAR(255),mail VARCHAR(255),dob INT(8),userpin INT(4))")
-    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE current_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(255),mobile_number INT(10),city VARCHAR(255),mail VARCHAR(255),dob INT(8),userpin INT(4))")
-    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE joint_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(255),member VARCHAR(255),mobile_number INT(10),member_mobile INT(10),city VARCHAR(255),mail VARCHAR(255),dob INT(8),member_dob INT(8))")
-    
+    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE savings_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,accountNumber INT(15),name VARCHAR(255),mobile_number INT(10),city VARCHAR(255),mail VARCHAR(255),dob INT(8),userpin INT(4),accountBalance INT(16))")
+    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE transaction_history (accountNumber INT(20) , amount INT(20),transaction VARCHAR(10))")
 except:
     print("error creating table")
     

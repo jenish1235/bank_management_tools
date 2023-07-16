@@ -25,29 +25,75 @@ import main
 import pwinput
 
 # New Account Creation Function
-def create_new_account(account_choice,name,mobile_number,city,mail,dob,membername,membermobile,memberdob,userpin):
+def create_new_account(account_choice,accountNumber,name,mobile_number,city,mail,dob,userpin):
    
     print("Server Connected")
     print("sending your data")
     print("waiting for response")
-    
-    
-    
+       
     if(account_choice == 1):
-        data = (f'{name}', f'{mobile_number}', f'{city}',f'{mail}',f'{dob}',f'{userpin}')
-        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savings_Account_Users (name,mobile_number,city,mail,dob,userpin) VALUES (%s,%s,%s,%s,%s,%s)",data)
+        data = (f'{accountNumber}',f'{name}', f'{mobile_number}', f'{city}',f'{mail}',f'{dob}',f'{userpin}',1000)
+        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savings_Account_Users (accountNumber,name,mobile_number,city,mail,dob,userpin,accountBalance) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",data)
         print("Succesfully Created your Savings account😁😊😁")
-    elif(account_choice == 2):
-        data = (f'{name}', f'{mobile_number}', f'{city}',f'{mail}',f'{dob}',f'{userpin}')
-        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO current_Account_Users (name,mobile_number,city,mail,dob,userpin) VALUES (%s,%s,%s,%s,%s,%s)",data)
-        print("Succesfully Created your Current account😁😊😁")
-    elif(account_choice == 3):
-        data = (f'{name}',f'{membername}',f'{mobile_number}',f'{membermobile}', f'{city}',f'{mail}',f'{dob}',f'{memberdob}')
-        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO joint_Account_Users (name,member,mobile_number,member_mobile,city,mail,dob,member_dob) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",data)
-        print("Succesfully Created your Joint account😁😊😁")
     main.bank_Database_Connection.commit()
 
 
+# Banking Facilities Function
+def bankingOption(account_choice,name,mobile_number,city,mail,dob):
+    accNumber = int(input("Please Enter Your Account Your Number: "))
+    userpin = pwinput.pwinput('Enter User Pin: ')
+    main.cursor_to_create_tables_in_bank_Database.execute("SELECT * from savings_Account_Users WHERE accountNumber = %s" , [f'{accNumber}'])
+    foundedUser = main.cursor_to_create_tables_in_bank_Database.fetchall()
+    if(userpin == foundedUser[0][6]):
+        print("Authentication Successful😊😊")
+        
+        
+    while (True):
+        user_action_selection = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History"))
+        
+        if(user_action_selection == 1):
+            if(account_choice == 1):
+                print("ACCOUNT TYPE: Savings Account")
+            elif(account_choice ==2):
+                print("ACCOUNT TYPE: Current Account")
+            elif(account_choice == 3):
+                print("ACCOUNT TYPE: Joint Account")
+            acc_holder_name = str.upper(name)
+            print(f"Name Of Account Holder: {acc_holder_name}")
+            print(f"Account Holder Mobile Number: {mobile_number}")
+            print(f"Account Number: {accNumber}")
+            print(f"Date Of Birth: {dob}")
+            print(f"Residence: {city}")
+            print(f"Account Holder's Email Address: {mail}")
+                    
+        elif(user_action_selection == 2):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
+            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
+            print(f"ACCOUNT BALANCE: {Account_Balance_Of_User}  Rupees")
+            
+            
+        elif(user_action_selection == 3):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
+            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
+            amount_to_deposit = int(input("Please Enter Amount Of Money To Deposit: "))
+            new_Account_Balance_after_deposit = int(Account_Balance_Of_User)+amount_to_deposit
+            main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{new_Account_Balance_after_deposit}',f'{accNumber}'])
+            main.bank_Database_Connection.commit()
+            Account_Balance_Of_User = new_Account_Balance_after_deposit
+            
+            main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,)")
+            
+        elif(user_action_selection == 4):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
+            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]            
+            amount_to_withdraw = int(input("Please Enter Amount Of Money TO withdraw: "))
+            new_Account_Balance_after_withdraw = int(Account_Balance_Of_User)-amount_to_withdraw
+            main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{new_Account_Balance_after_withdraw}',f'{accNumber}'])
+            main.bank_Database_Connection.commit()
+            Account_Balance_Of_User = new_Account_Balance_after_withdraw
+        
+        elif(user_action_selection == 5):
+            print("Fetching Your Transaction History")
 
 # Welcome Message
 print("\n\n **************** Welcome To Bank ***************")
@@ -67,48 +113,40 @@ if(user_acc_check == 1):
     customer_choice_account_type = int(input("Please Select The type of Account You want to open\n\n1. Savings Account\n2. Current Acount\n3. Joint Account \n(You can Read about account opening ,their types and benefits on www.blog.com): "))
     
     # Customer Data Collection
-    customer_name1 = input("Please Enter Your Fullname in caps(firstname secondname lastname): ")
+    customer_name = input("Please Enter Your Fullname in caps(firstname secondname lastname): ")
     mobile_number = int(input("Please Enter Your Mobile Number without country code: "))
     city = input("Please Enter your residencial city: ")
     mail = input("Please Enter Your Email ID: ")
     dob_of_customer = input("Please Enter Your date of birth (NO SPECIAL CHARS LIKE slash,dash or commas)(DDMMYYYY): ")
     user_pin = pwinput.pwinput("Please Set pin: " , mask="*")
     confirm_user_pin = pwinput.pwinput("Please Confirm Pin: ", mask = "*")
+    # Account Number Assignment
+    if(customer_choice_account_type == 1):
+        main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
+        customer_Id_coloumn = main.cursor_to_create_tables_in_bank_Database.fetchall()
+        required_customer_id = str(customer_Id_coloumn.__len__())
+        required_customer_acc_number = "360101" + required_customer_id
+        print(f"\n\nYOUR ACCOUNT NUMBER IS:   {required_customer_acc_number}")
     
     
-    
-    if(customer_choice_account_type == 3):
-        member_name = input("Please enter another member's fullname (firstnam secondname lastname): ")
-        member_mobile = int(input("Please Enter Member mobile number without country code: "))
-        member_dob = int(input("Please Enter Member's Date of birth(DDMMYYYY)(NO Symbols): "))
-    else: 
-        member_name = ""
-        member_mobile = None
-        member_dob = None
-    
-    # backend data post and account nummber assignment
+    # backend data post
     try:
-        create_new_account(customer_choice_account_type,customer_name1,mobile_number,city,mail,dob_of_customer,member_name,member_mobile,member_dob,user_pin)
+        create_new_account(customer_choice_account_type,required_customer_acc_number,customer_name,mobile_number,city,mail,dob_of_customer,user_pin)
         
-        if(customer_choice_account_type == 1):
-            main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
-            customer_Id_coloumn = main.cursor_to_create_tables_in_bank_Database.fetchall()
-            required_customer_id = str(customer_Id_coloumn.__len__())
-            required_customer_acc_number = "360101" + required_customer_id
-            print(f"\n\nYOUR ACCOUNT NUMBER IS:   {required_customer_acc_number}")
+        
+        print("")
+        print(f"Hello {customer_name}, Welcome TO Your Bank DashBoard Now U Can Proceed with Banking Facilities")
+        bankingOption(customer_choice_account_type,customer_name,mobile_number,city,mail,dob_of_customer)
             
-            
-            
-            
-    except:
-        print("Sorry , Server Down")
+    except Exception as e:
+        print(e)
             
         
         
     
 # If user Already HAve Account
 elif(user_acc_check == 2):
-    user_account_type_to_check_existence_in_table = int(input("Please Select Your Account Type\n\n1. Savings Account\n2.Current Account\n3.Joint Account  : "))
+    user_account_type_to_check_existence_in_table = int(input("Please Select Your Account Type\n\n1. Savings Account: "))
     if(user_account_type_to_check_existence_in_table == 1):
         user_account_number = input("Please Enter Your account number: ")
         user_id_to_check_in_table = user_account_number.removeprefix("360101")
@@ -122,6 +160,9 @@ elif(user_acc_check == 2):
                 askedpassword_to_login = int(pwinput.pwinput("Please Enter Pin: ", mask = "*"))
                 if(askedpassword_to_login == foundedUser[0][6]):
                     print("Login Successful😎😎😎😎😎😎😎😎")
+                    
+                    
+                    
                     break
                 else:
                     print("Sorry Login Unsuccessful,PLease try Again...\n")
