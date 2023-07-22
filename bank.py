@@ -24,6 +24,16 @@ import mysql.connector
 import main
 import pwinput
 
+# Welcome Message
+print("\n\n **************** Welcome To Bank ***************")
+print("\n\nHello User, Happy To See At Our Place")
+
+# Check IF User Want new Account Or already have one
+user_acc_check = int(input("\n\nPlease Select From Following option to proceed :\n1. Create A New Account\n2. You have an existing Account\n3. Get Assistance And Know More About Us\n4.Careers\n(press command number to select)  : "))
+print("\n\nLet's Complete With Login/Signup process")
+
+
+
 # New Account Creation Function
 def create_new_account(account_choice,accountNumber,name,mobile_number,city,mail,dob,userpin):
    
@@ -41,11 +51,17 @@ def create_new_account(account_choice,accountNumber,name,mobile_number,city,mail
 # Banking Facilities Function
 def bankingOption(account_choice,name,mobile_number,city,mail,dob):
     accNumber = int(input("Please Enter Your Account Your Number: "))
-    userpin = pwinput.pwinput('Enter User Pin: ')
+    userpinentered = int(pwinput.pwinput('Enter User Pin: '))
     main.cursor_to_create_tables_in_bank_Database.execute("SELECT * from savings_Account_Users WHERE accountNumber = %s" , [f'{accNumber}'])
     foundedUser = main.cursor_to_create_tables_in_bank_Database.fetchall()
-    if(userpin == foundedUser[0][6]):
-        print("Authentication Successful😊😊")
+    
+    while True:
+        if(userpinentered == foundedUser[0][7]):
+            print("Authentication Successful😊😊")
+            break
+        else:
+            print("Authentication Failed")
+            userpinentered = int(pwinput.pwinput("You Entered A Wrong Pin 😡😡😡😡😡😡, Enter Your Pin Again: "))
         
         
     while (True):
@@ -103,13 +119,8 @@ def bankingOption(account_choice,name,mobile_number,city,mail,dob):
             transaction_history_of_user = main.cursor_to_create_tables_in_bank_Database.fetchall()
             print(transaction_history_of_user)
 
-# Welcome Message
-print("\n\n **************** Welcome To Bank ***************")
-print("\n\nHello User, Happy To See At Our Place")
 
-# Check IF USer Want new Account Or already have one
-user_acc_check = int(input("\n\nPlease Select From Following option to proceed :\n1. Create A New Account\n2. You have an existing Account\n3. Get Assistance And Know More About Us\n4.Careers\n(press command number to select)  : "))
-print("\n\nLet's Complete With Login/Signup process")
+
 
 
 # If user wants account
@@ -148,23 +159,4 @@ if(user_acc_check == 1):
             
     except Exception as e:
         print(e)
-    
-# If user Already HAve Account
-elif (user_acc_check == 2):
-    user_account_check_type = int(input("Please Select Your Account Type( 1.Savings Account, 2.Joint AccounT): " ))
-    if(user_account_check_type == 1):
-        user_account_number = int(input("Please Enter Account Number: "))
-        
-        
-        main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM savings_Account_Users WHERE accountNumber = %s", [f'{user_account_number}'])
-       
-        obtained_user_Account_Info  = main.cursor_to_create_tables_in_bank_Database.fetchall()[0]
-        print(obtained_user_Account_Info)
-        
-        # Conversion of user detail set into individual elements 
-        user_id,user_account_number,user_name,user_mobile_number,user_city,user_mail,user_dob,user_pin,user_account_balance = obtained_user_Account_Info[0], obtained_user_Account_Info[1], obtained_user_Account_Info[2], obtained_user_Account_Info[3], obtained_user_Account_Info[4], obtained_user_Account_Info[5],obtained_user_Account_Info[6],obtained_user_Account_Info[7],obtained_user_Account_Info[8]
-        bankingOption(user_account_check_type, user_name,user_mobile_number,user_city,user_mail,user_dob)
-                
-            
-        
         
