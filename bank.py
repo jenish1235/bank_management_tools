@@ -65,7 +65,7 @@ def bankingOption(account_choice,name,mobile_number,city,mail,dob):
         
         
     while (True):
-        user_action_selection = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History"))
+        user_action_selection = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History: "))
         
         if(user_action_selection == 1):
             if(account_choice == 1):
