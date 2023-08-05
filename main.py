@@ -66,6 +66,7 @@ try:
     cursor_to_create_tables_in_bank_Database = bank_Database_Connection.cursor()
     cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE savings_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,accountNumber INT(15),name VARCHAR(255),mobile_number VARCHAR(20),city VARCHAR(255),mail VARCHAR(255),dob INT(8),userpin INT(4),accountBalance INT(16))")
     cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE transaction_history (accountNumber INT(20) , amount INT(20),transaction VARCHAR(10))")
+    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE joint_Account_Users (customer_id INT AUTO_INCREMENT PRIMARY KEY,accountNumber INT(15),first_user VARCHAR(255),user1_mobile VARCHAR(20), second_user VARCHAR(255),user2_mobile VARCHAR(20),city VARCHAR(255),mail VARCHAR(255),dob_User1 INT(8),dob_user2 INT(4),accountBalance INT(16))")
 except:
     print("error creating table")
 

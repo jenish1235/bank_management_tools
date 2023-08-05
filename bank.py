@@ -8,7 +8,7 @@
 #Technology Used :- 
 
 # 1. Python 3.11.4 
-# Database:  MySQL 8.0.33
+# Database:  MySQL 8.0.34
 
 
 ### Database Access Credentials over localhost 
@@ -18,145 +18,197 @@
 
 ###*************************************************************************************************************************************###
 
-
 import mysql
 import mysql.connector
 import main
 import pwinput
+from time import sleep as sleep
 
-# Welcome Message
-print("\n\n **************** Welcome To Bank ***************")
-print("\n\nHello User, Happy To See At Our Place")
-
-# Check IF User Want new Account Or already have one
-user_acc_check = int(input("\n\nPlease Select From Following option to proceed :\n1. Create A New Account\n2. You have an existing Account\n3. Get Assistance And Know More About Us\n4.Careers\n(press command number to select)  : "))
-print("\n\nLet's Complete With Login/Signup process")
-
-
-
-# New Account Creation Function
-def create_new_account(account_choice,accountNumber,name,mobile_number,city,mail,dob,userpin):
-   
-    print("Server Connected")
-    print("sending your data")
-    print("waiting for response")
-       
-    if(account_choice == 1):
-        data = (f'{accountNumber}',f'{name}', f'{mobile_number}', f'{city}',f'{mail}',f'{dob}',f'{userpin}',1000)
-        main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savings_Account_Users (accountNumber,name,mobile_number,city,mail,dob,userpin,accountBalance) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",data)
-        print("Succesfully Created your Savings account😁😊😁")
-    main.bank_Database_Connection.commit()
+# function for checking account existence and registration help 
+def main_function():
+    integer_to_ask_customer_about_existence_of_account = int(input("\n\nPlease Select From Following option to proceed :\n1. Create A New Account\n2. You have an existing Account\n3. Get Assistance And Know More About Us\n4.Careers\n(press command number to select)  : "))
+    if(integer_to_ask_customer_about_existence_of_account == 1):
+        print("Okay Let's Start with the account creation process")
+    elif(integer_to_ask_customer_about_existence_of_account == 2):
+        print("Okay Please Login with your Credentials to use banking facilities")
+    elif(integer_to_ask_customer_about_existence_of_account == 3):
+        # Sasta chatbot and little gyaan to be written here
+        pass
+    elif(integer_to_ask_customer_about_existence_of_account == 4):
+        print("Getting You to career Options... ")
+        sleep(2)
+    else:
+        print("invalid command selected")
+        main_function()
 
 
-# Banking Facilities Function
-def bankingOption(account_choice,name,mobile_number,city,mail,dob):
-    accNumber = int(input("Please Enter Your Account Your Number: "))
-    userpinentered = int(pwinput.pwinput('Enter User Pin: '))
-    main.cursor_to_create_tables_in_bank_Database.execute("SELECT * from savings_Account_Users WHERE accountNumber = %s" , [f'{accNumber}'])
-    foundedUser = main.cursor_to_create_tables_in_bank_Database.fetchall()
+    if(integer_to_ask_customer_about_existence_of_account == 1):
+        print("\n\nPlease Read Our Terms,Policy and Manual At www.blog.com")
+        sleep(2)
+        print("\n\nOkay Let's Proceed with Sign up process\n\nPlease cooperate with further steps by providing required information to complete your registration and open a account with us 😊😊😊 ")
+        
+        integer_for_selection_of_account_type_to_open_account = int(input("Please Select The type of Account You want to open\n\n1. Savings Account\n2. Joint Account \n(You can Read about account opening ,their types and benefits on www.blog.com): "))
+        # If User selected to open a savings account
+        if(integer_for_selection_of_account_type_to_open_account == 1):
+            
+            print("You selected to open a Savings Account")
+            # Account holder's information collection 
+            saving_account_holder_name = input("Please Enter Your Fullname in caps(firstname secondname lastname): ")
+            saving_account_mobile_number = int(input("Please Enter Your Mobile Number without country code: "))
+            saving_account_holder_city = input("Please Enter your residencial city: ")
+            saving_account_holder_mail = input("Please Enter Your Email ID: ")
+            saving_account_holder_dob = input("Please Enter Your date of birth (NO SPECIAL CHARS LIKE slash,dash or commas)(DDMMYYYY): ")     
+            while (True):
+                saving_account_holder_user_pin = pwinput.pwinput("Please Set pin: " , mask="*")
+                saving_account_holder_confirm_user_pin = pwinput.pwinput("Please Confirm Pin: ", mask = "*")
+                if(saving_account_holder_user_pin == saving_account_holder_confirm_user_pin):
+                    break
+                else:
+                    print("Your entered pin and confirmation pin doesn't match , please try again 😢😢😢")
+                    
+            # Savings Account Holder's Account Number Assignment
+            if(integer_for_selection_of_account_type_to_open_account == 1 ):
+                main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
+                account_holders_id_column_fetched_from_table = main.cursor_to_create_tables_in_bank_Database.fetchall()
+                
+                account_holder_id_required_to_assign_next_account_number = str( account_holders_id_column_fetched_from_table.__len__())
+                final_string_account_number_assigned = "360101" + account_holder_id_required_to_assign_next_account_number
+                print(f"\n\nYOUR ACCOUNT NUMBER IS:   {final_string_account_number_assigned}")
+            
+            # Sending information of savings account holder to table 
+            try:
+                funtion_to_create_new_savings_account(saving_account_holder_name,saving_account_mobile_number,saving_account_holder_city,saving_account_holder_mail,saving_account_holder_dob,saving_account_holder_user_pin,final_string_account_number_assigned)
+                
+                print("")
+                print(f"Hello {saving_account_holder_name}, Welcome to your savings account dashboard, u can proceed further with banking facilities happily 😉😉😉")
+                
+                function_for_banking_Facilities_for_savings_account()
+                
+            except Exception as e:
+                print("Unable to register a new account as following error occured: \n\n", e)
+    elif(integer_to_ask_customer_about_existence_of_account == 2 ):
+        function_for_banking_Facilities_for_savings_account()
+# funtion to create the saving account
+def funtion_to_create_new_savings_account(saving_account_holder_name,saving_account_mobile_number,saving_account_holder_city,saving_account_holder_mail,saving_account_holder_dob,saving_account_holder_user_pin,final_string_account_number_assigned):
+    print("Connecting Database")
+    sleep(1.0)
     
+    print("Database Connected Successfully\nSending Information to register new savings account\nWaiting for response")
+    data = (f'{final_string_account_number_assigned}',f'{saving_account_holder_name}', f'{saving_account_mobile_number}', f'{saving_account_holder_city}',f'{saving_account_holder_mail}',f'{saving_account_holder_dob}',f'{saving_account_holder_user_pin}',0)
+    main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO savings_Account_Users (accountNumber,name,mobile_number,city,mail,dob,userpin,accountBalance) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",data)
+    
+    main.bank_Database_Connection.commit()
+    sleep(1.0)
+    print("Succesfully Created your Savings account😁😊😁")
+# Funtion for banking facilities for saving account holders
+def function_for_banking_Facilities_for_savings_account():
+    account_number_entered_by_user_to_check_in_saving_account_table = str(int(input("Please enter your account number: ")))
+    account_pin_entered_by_user_to_check_in_savings_account_table = int(pwinput.pwinput('Enter pin: '))
+    print("Searching User")
+    
+    # Searching for Account holder in savings account table
+    try:
+        main.cursor_to_create_tables_in_bank_Database.execute("SELECT * from savings_Account_Users WHERE accountNumber = %s" , [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+        founded_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()
+        sleep(1)
+        print("Account Founded")
+    
+    except Exception as e:
+        print("Can't complete request because: ",e)
+    
+    # Loop to compare pin entered by user with pin set while register a saving account
     while True:
-        if(userpinentered == foundedUser[0][7]):
+        if(account_pin_entered_by_user_to_check_in_savings_account_table == founded_account_holder[0][7]):
             print("Authentication Successful😊😊")
             break
         else:
             print("Authentication Failed")
-            userpinentered = int(pwinput.pwinput("You Entered A Wrong Pin 😡😡😡😡😡😡, Enter Your Pin Again: "))
-        
-        
+            account_pin_entered_by_user_to_check_in_savings_account_table = int(pwinput.pwinput("You Entered A Wrong Pin 😡😡😡😡😡😡, Enter Your Pin Again: "))
+    
+    # Loop For Banking Facilities
     while (True):
-        user_action_selection = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History: "))
+        facility_selected_by_account_holder = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History 6: Go back : "))
         
-        if(user_action_selection == 1):
-            if(account_choice == 1):
-                print("ACCOUNT TYPE: Savings Account")
-            elif(account_choice ==2):
-                print("ACCOUNT TYPE: Current Account")
-            elif(account_choice == 3):
-                print("ACCOUNT TYPE: Joint Account")
-            acc_holder_name = str.upper(name)
-            print(f"Name Of Account Holder: {acc_holder_name}")
-            print(f"Account Holder Mobile Number: {mobile_number}")
-            print(f"Account Number: {accNumber}")
-            print(f"Date Of Birth: {dob}")
-            print(f"Residence: {city}")
-            print(f"Account Holder's Email Address: {mail}")
-                    
-        elif(user_action_selection == 2):
-            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
-            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
-            print(f"ACCOUNT BALANCE: {Account_Balance_Of_User}  Rupees")
+        if(facility_selected_by_account_holder == 1):
             
+            founded_saving_account_holder_name = founded_account_holder[0][2]
+            founded_saving_account_holder_mobile_number = founded_account_holder[0][3]
+            founded_saving_account_holder_city = founded_account_holder[0][4]
+            founded_saving_account_holder_mail = founded_account_holder[0][5]
+            founded_saving_account_holder_dob = founded_account_holder[0][6]
             
-        elif(user_action_selection == 3):
-            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
-            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
-            amount_to_deposit = int(input("Please Enter Amount Of Money To Deposit: "))
-            new_Account_Balance_after_deposit = int(Account_Balance_Of_User)+amount_to_deposit
-            main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{new_Account_Balance_after_deposit}',f'{accNumber}'])
-            main.bank_Database_Connection.commit()
-            Account_Balance_Of_User = new_Account_Balance_after_deposit
-            transaction_info = [f'{accNumber}',f'{amount_to_deposit}', 'credited']
-            main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
-            main.bank_Database_Connection.commit()
+            print("ACCOUNT TYPE: Savings Account")
+            print(f"Account Holder's Details:\n\nNAME: {founded_saving_account_holder_name}\nMOBILE NUMBER: {founded_saving_account_holder_mobile_number}\nCITY: {founded_saving_account_holder_city}\nMAIL: {founded_saving_account_holder_mail}\nDATE OF BIRTH: {founded_saving_account_holder_dob}")
+
+        elif(facility_selected_by_account_holder == 2):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+            integer_balance_of_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
             
+            print(f"ACCOUNT BALANCE: {integer_balance_of_account_holder}  Rupees")
+
+        elif(facility_selected_by_account_holder == 3):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+            integer_balance_of_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
             
-        elif(user_action_selection == 4):
-            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{accNumber}'])
-            Account_Balance_Of_User = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]            
-            amount_to_withdraw = int(input("Please Enter Amount Of Money TO withdraw: "))
-            new_Account_Balance_after_withdraw = int(Account_Balance_Of_User)-amount_to_withdraw
-            main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{new_Account_Balance_after_withdraw}',f'{accNumber}'])
-            main.bank_Database_Connection.commit()
-            Account_Balance_Of_User = new_Account_Balance_after_withdraw
-            transaction_info = [f'{accNumber}',f'{amount_to_withdraw}', 'debited']
-            main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
-            main.bank_Database_Connection.commit()
+            integer_amount_to_deposit_in_account = int(input("Please Enter Amount Of Money To Deposit: "))
+            integer_account_balance_after_crediting_specified_amount = int(integer_balance_of_account_holder)+integer_amount_to_deposit_in_account
+            
+            print("Processing Request")
+            sleep(2)
+            
+            try:
+                main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{integer_account_balance_after_crediting_specified_amount}',f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+                main.bank_Database_Connection.commit()
+                print(F"Request processed, money credited successfully. UPDATED ACCOUNT BALANCE: {integer_account_balance_after_crediting_specified_amount}")
+                integer_balance_of_account_holder = integer_account_balance_after_crediting_specified_amount
+                transaction_info = [f'{account_number_entered_by_user_to_check_in_saving_account_table}',f'{integer_amount_to_deposit_in_account}', 'credited']
+                main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
+                main.bank_Database_Connection.commit()
+            except Exception as e:
+                print("Can't Complete Request Becuase: ",e) 
         
-        elif(user_action_selection == 5):
+        elif(facility_selected_by_account_holder == 4):
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+            integer_balance_of_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]            
+            
+            integer_amount_to_withdraw_from_account = int(input("Please Enter Amount Of Money TO withdraw: "))
+            integer_account_balance_after_withdrawing_specified_amount = int(integer_balance_of_account_holder)-integer_amount_to_withdraw_from_account
+            
+            print("Processing Request")
+            sleep(2)
+            
+            try:
+                main.cursor_to_create_tables_in_bank_Database.execute("UPDATE savings_Account_Users SET accountBalance = %s WHERE accountNumber = %s" , [f'{integer_account_balance_after_withdrawing_specified_amount}',f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+                main.bank_Database_Connection.commit()
+                integer_balance_of_account_holder = integer_account_balance_after_withdrawing_specified_amount
+                transaction_info = [f'{account_number_entered_by_user_to_check_in_saving_account_table}',f'{integer_amount_to_withdraw_from_account}', 'debited']
+                main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
+                main.bank_Database_Connection.commit()
+            except Exception as e:
+                print("Can't complete request because", e)
+        
+        elif(facility_selected_by_account_holder == 5):
             print("Fetching Your Transaction History")
-            main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM transaction_history WHERE accountNumber = %s", [f'{accNumber}'])
-            transaction_history_of_user = main.cursor_to_create_tables_in_bank_Database.fetchall()
-            print(transaction_history_of_user)
-
-
-
-
-
-# If user wants account
-if(user_acc_check == 1):
-    print("\n\nPlease Read Our Terms,Policy and Manual At www.blog.com")
-    print("\n\nOkay Let's Proceed with Sign up process\n\nPlease cooperate with further steps by providing required information to complete your registration and open a account with us 😊😊😊 ")
-    
-    # Choose Acc. Type
-    customer_choice_account_type = int(input("Please Select The type of Account You want to open\n\n1. Savings Account\n2. Current Acount\n3. Joint Account \n(You can Read about account opening ,their types and benefits on www.blog.com): "))
-    
-    # Customer Data Collection
-    customer_name = input("Please Enter Your Fullname in caps(firstname secondname lastname): ")
-    mobile_number = int(input("Please Enter Your Mobile Number without country code: "))
-    city = input("Please Enter your residencial city: ")
-    mail = input("Please Enter Your Email ID: ")
-    dob_of_customer = input("Please Enter Your date of birth (NO SPECIAL CHARS LIKE slash,dash or commas)(DDMMYYYY): ")
-    user_pin = pwinput.pwinput("Please Set pin: " , mask="*")
-    confirm_user_pin = pwinput.pwinput("Please Confirm Pin: ", mask = "*")
-    # Account Number Assignment
-    if(customer_choice_account_type == 1):
-        main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
-        customer_Id_coloumn = main.cursor_to_create_tables_in_bank_Database.fetchall()
-        required_customer_id = str(customer_Id_coloumn.__len__())
-        required_customer_acc_number = "360101" + required_customer_id
-        print(f"\n\nYOUR ACCOUNT NUMBER IS:   {required_customer_acc_number}")
-    
-    
-    # backend data post
-    try:
-        create_new_account(customer_choice_account_type,required_customer_acc_number,customer_name,mobile_number,city,mail,dob_of_customer,user_pin)
+            try:
+                main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM transaction_history WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
+                transaction_history_of_user_fetched_from_transaction_history_table_for_saving_accounts = main.cursor_to_create_tables_in_bank_Database.fetchall()
+                print(transaction_history_of_user_fetched_from_transaction_history_table_for_saving_accounts)
+            except Exception as e:
+                print("Can't complete request because: ",e)
         
+        elif(facility_selected_by_account_holder == 6):
+            main_function()
         
-        print("")
-        print(f"Hello {customer_name}, Welcome TO Your Bank DashBoard Now U Can Proceed with Banking Facilities")
-        bankingOption(customer_choice_account_type,customer_name,mobile_number,city,mail,dob_of_customer)
+        else:
+            print("Please Select a valid command")    
             
-    except Exception as e:
-        print(e)
-        
+####################################################################################################################################################
+#############################*/*//*/*//* This Code Runs Initially and above written functions are used during the funtioning of below code *//*/*//*/*################################
+####################################################################################################################################################
+
+#  Welcome Message
+print("\n\n **************** Welcome To Bank ***************")
+print("\n\nHello User, Happy To See At Our Place")
+
+#Checking Account Existence Of User And Pre-Registration Help
+main_function()        
