@@ -24,8 +24,13 @@ import main
 import pwinput
 from time import sleep as sleep
 
+
+
 # function for checking account existence and registration help 
 def main_function():
+    integer_to_ask_customer_about_existence_of_account = None
+    integer_for_selection_of_account_type_to_open_account = None
+    
     integer_to_ask_customer_about_existence_of_account = int(input("\n\nPlease Select From Following option to proceed :\n1. Create A New Account\n2. You have an existing Account\n3. Get Assistance And Know More About Us\n4.Careers\n(press command number to select)  : "))
     if(integer_to_ask_customer_about_existence_of_account == 1):
         print("Okay Let's Start with the account creation process")
@@ -67,13 +72,12 @@ def main_function():
                     print("Your entered pin and confirmation pin doesn't match , please try again 😢😢😢")
                     
             # Savings Account Holder's Account Number Assignment
-            if(integer_for_selection_of_account_type_to_open_account == 1 ):
-                main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
-                account_holders_id_column_fetched_from_table = main.cursor_to_create_tables_in_bank_Database.fetchall()
-                
-                account_holder_id_required_to_assign_next_account_number = str( account_holders_id_column_fetched_from_table.__len__())
-                final_string_account_number_assigned = "360101" + account_holder_id_required_to_assign_next_account_number
-                print(f"\n\nYOUR ACCOUNT NUMBER IS:   {final_string_account_number_assigned}")
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from savings_Account_Users")
+            account_holders_id_column_fetched_from_table = main.cursor_to_create_tables_in_bank_Database.fetchall()
+               
+            account_holder_id_required_to_assign_next_account_number = str( account_holders_id_column_fetched_from_table.__len__())
+            final_string_account_number_assigned = "360101" + account_holder_id_required_to_assign_next_account_number
+            print(f"\n\nYOUR ACCOUNT NUMBER IS:   {final_string_account_number_assigned}")
             
             # Sending information of savings account holder to table 
             try:
@@ -86,6 +90,48 @@ def main_function():
                 
             except Exception as e:
                 print("Unable to register a new account as following error occured: \n\n", e)
+        
+        elif(integer_for_selection_of_account_type_to_open_account == 2):
+            print("Okay!, Please Cooperate with further process to complete Your Joint Account, You can read More about joint at www.blog.com")
+            sleep(1.0)
+            
+            number_of_distinct_account_holders_to_include_in_joint_account = int(input("Please enter total number of members for joint account: "))
+            print("Okay, Please Fill the following details for all the user")
+            
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT customer_id from joint_Account_Users")
+            account_holders_id_column_fetched_from_table = main.cursor_to_create_tables_in_bank_Database.fetchall()
+            customer_id = int(account_holders_id_column_fetched_from_table[-1][0])+1
+            account_holder_id_required_to_assign_next_account_number = str(customer_id)
+            final_string_account_number_assigned = "360101" + account_holder_id_required_to_assign_next_account_number
+            print(f"\n\nYOUR ACCOUNT NUMBER IS:   {final_string_account_number_assigned}")
+            
+                      
+            for joint_account_data_collection_loop_int_i in range(number_of_distinct_account_holders_to_include_in_joint_account):
+                joint_account_holder_name = input("Please Enter Your Fullname in caps(firstname secondname lastname): ")
+                joint_account_mobile_number = int(input("Please Enter Your Mobile Number without country code: "))
+                joint_account_holder_city = input("Please Enter your residencial city: ")
+                joint_account_holder_mail = input("Please Enter Your Email ID: ")
+                joint_account_holder_dob = input("Please Enter Your date of birth (NO SPECIAL CHARS LIKE slash,dash or commas)(DDMMYYYY): ")     
+                while (True):
+                    joint_account_holder_user_pin = pwinput.pwinput("Please Set pin: " , mask="*")
+                    joint_account_holder_confirm_user_pin = pwinput.pwinput("Please Confirm Pin: ", mask = "*")
+                    if(joint_account_holder_user_pin == joint_account_holder_confirm_user_pin):
+                        break
+                    else:
+                        print("Your entered pin and confirmation pin doesn't match , please try again 😢😢😢")
+                function_to_create_new_joint_account(customer_id,final_string_account_number_assigned,joint_account_holder_name,joint_account_mobile_number,joint_account_holder_city,joint_account_holder_mail,joint_account_holder_dob,joint_account_holder_user_pin)    
+            
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT joint_account_holder_name FROM joint_Account_Users WHERE accountNumber = %s",[f'{final_string_account_number_assigned}'])
+            list_type_gathered_information_of_new_created_account = main.cursor_to_create_tables_in_bank_Database.fetchall()
+            print("")
+            print("Successfully created your joint account with following Members: ")
+            for i in range(number_of_distinct_account_holders_to_include_in_joint_account):
+                print(str(i+1),")", list_type_gathered_information_of_new_created_account[i-1][0])
+            
+            
+                
+    
+    
     elif(integer_to_ask_customer_about_existence_of_account == 2 ):
         function_for_banking_Facilities_for_savings_account()
 # funtion to create the saving account
@@ -198,10 +244,52 @@ def function_for_banking_Facilities_for_savings_account():
         
         elif(facility_selected_by_account_holder == 6):
             main_function()
+            
         
         else:
             print("Please Select a valid command")    
-            
+
+def function_to_create_new_joint_account(customer_id,final_string_account_number_assigned,joint_account_holder_name,joint_account_mobile_number,joint_account_holder_city,joint_account_holder_mail,joint_account_holder_dob,joint_account_holder_user_pin):
+    
+    print("Connecting Database")
+    sleep(1.0)
+    
+    print('Database Connected Successfully\nSending Information to register new joint account\n Waiting for response')
+    data = (
+        f"{customer_id}", 
+        f"{final_string_account_number_assigned}",
+        f"{joint_account_holder_name}",
+        f"{joint_account_mobile_number}",
+        f"{joint_account_holder_city}",
+        f"{joint_account_holder_mail}",
+        f"{joint_account_holder_dob}",
+        f"{joint_account_holder_user_pin}",
+        0)
+    
+    main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO joint_Account_Users (customer_id,accountNumber,joint_account_holder_name,joint_account_holder_mobile_number,joint_account_holder_city,joint_account_holder_mail,joint_account_holder_dob,joint_account_holder_userpin,account_balance) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",data)
+    main.bank_Database_Connection.commit()
+    sleep(1.0)
+    print("Successfully Created Your joint Account")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ####################################################################################################################################################
 #############################*/*//*/*//* This Code Runs Initially and above written functions are used during the funtioning of below code *//*/*//*/*################################
 ####################################################################################################################################################
