@@ -124,6 +124,7 @@ def main_function():
             main.cursor_to_create_tables_in_bank_Database.execute("SELECT joint_account_holder_name FROM joint_Account_Users WHERE accountNumber = %s",[f'{final_string_account_number_assigned}'])
             list_type_gathered_information_of_new_created_account = main.cursor_to_create_tables_in_bank_Database.fetchall()
             print("")
+            
             print("Successfully created your joint account with following Members: ")
             for i in range(number_of_distinct_account_holders_to_include_in_joint_account):
                 print(str(i+1),")", list_type_gathered_information_of_new_created_account[i-1][0])
@@ -134,6 +135,10 @@ def main_function():
     
     elif(integer_to_ask_customer_about_existence_of_account == 2 ):
         function_for_banking_Facilities_for_savings_account()
+
+
+
+
 # funtion to create the saving account
 def funtion_to_create_new_savings_account(saving_account_holder_name,saving_account_mobile_number,saving_account_holder_city,saving_account_holder_mail,saving_account_holder_dob,saving_account_holder_user_pin,final_string_account_number_assigned):
     print("Connecting Database")
@@ -146,10 +151,10 @@ def funtion_to_create_new_savings_account(saving_account_holder_name,saving_acco
     main.bank_Database_Connection.commit()
     sleep(1.0)
     print("Succesfully Created your Savings account😁😊😁")
+
 # Funtion for banking facilities for saving account holders
 def function_for_banking_Facilities_for_savings_account():
     account_number_entered_by_user_to_check_in_saving_account_table = str(int(input("Please enter your account number: ")))
-    account_pin_entered_by_user_to_check_in_savings_account_table = int(pwinput.pwinput('Enter pin: '))
     print("Searching User")
     
     # Searching for Account holder in savings account table
@@ -163,6 +168,7 @@ def function_for_banking_Facilities_for_savings_account():
         print("Can't complete request because: ",e)
     
     # Loop to compare pin entered by user with pin set while register a saving account
+    account_pin_entered_by_user_to_check_in_savings_account_table = int(pwinput.pwinput('Enter pin: '))
     while True:
         if(account_pin_entered_by_user_to_check_in_savings_account_table == founded_account_holder[0][7]):
             print("Authentication Successful😊😊")
@@ -173,7 +179,7 @@ def function_for_banking_Facilities_for_savings_account():
     
     # Loop For Banking Facilities
     while (True):
-        facility_selected_by_account_holder = int(input("Please Select An Action TO Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History 6: Go back : "))
+        facility_selected_by_account_holder = int(input("Please Select An Action To Perform: \n1.Account Info   2.Check Account Balance   3.Deposit Money    4.Withdraw Money   5. Check Transaction History 6: Go back : "))
         
         if(facility_selected_by_account_holder == 1):
             
@@ -211,7 +217,7 @@ def function_for_banking_Facilities_for_savings_account():
                 main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
                 main.bank_Database_Connection.commit()
             except Exception as e:
-                print("Can't Complete Request Becuase: ",e) 
+                print("Can't Complete Request Because: ",e) 
         
         elif(facility_selected_by_account_holder == 4):
             main.cursor_to_create_tables_in_bank_Database.execute("SELECT accountBalance FROM savings_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_in_saving_account_table}'])
@@ -230,6 +236,7 @@ def function_for_banking_Facilities_for_savings_account():
                 transaction_info = [f'{account_number_entered_by_user_to_check_in_saving_account_table}',f'{integer_amount_to_withdraw_from_account}', 'debited']
                 main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history(accountNumber,amount,transaction) VALUES (%s,%s,%s) ", transaction_info)
                 main.bank_Database_Connection.commit()
+                print(f"Request Processed, money debited succesfully. UPDATED ACCOUNT BALANCE: {integer_account_balance_after_withdrawing_specified_amount}")
             except Exception as e:
                 print("Can't complete request because", e)
         
@@ -245,10 +252,10 @@ def function_for_banking_Facilities_for_savings_account():
         elif(facility_selected_by_account_holder == 6):
             main_function()
             
-        
         else:
             print("Please Select a valid command")    
 
+# Function for Creating Joint Bank Account
 def function_to_create_new_joint_account(customer_id,final_string_account_number_assigned,joint_account_holder_name,joint_account_mobile_number,joint_account_holder_city,joint_account_holder_mail,joint_account_holder_dob,joint_account_holder_user_pin):
     
     print("Connecting Database")
@@ -271,21 +278,159 @@ def function_to_create_new_joint_account(customer_id,final_string_account_number
     sleep(1.0)
     print("Successfully Created Your joint Account")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Function for banking facilities for joint account holders
+def function_for_banking_facilities_for_joint_account():
+    
+    account_number_entered_by_user_to_check_into_joint_account_users = str(int(input("Please enter your account number: ")))
+    print("Searching User")
+    
+    # this try and except block check for existence of user entered account in joint account users table and if account exists also checks for authentication of user to use bank facility
+    try:
+        main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM joint_account_users WHERE accountNumber = %s" , [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+        founded_Account = main.cursor_to_create_tables_in_bank_Database.fetchall()
+        sleep(1)
+               
+        # Query to fetch name and user pin of all the joint account members for the founded user account 
+        # Also this if else block compares respective user pins entered by the user with those fetched form the database and authenticates the user for further banking facility use
+        if(founded_Account != []):
+            
+            print("Account Founded")
+            
+            # Fetch names of users associated with the account number entered by the user
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT joint_account_holder_name FROM joint_account_users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            fetched_list_of_members_of_joint_account = main.cursor_to_create_tables_in_bank_Database.fetchall()
+            
+            #Fetch user pins of all users associated with the account number entered by the user
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT joint_account_holder_userpin FROM joint_account_users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            fetched_list_of_userpin_of_members_of_joint_account = main.cursor_to_create_tables_in_bank_Database.fetchall()  
+            
+            print("Names of Associated Members (please enter their repective user pin to authenticate into banking facility): ")
+            
+            for i in range(fetched_list_of_members_of_joint_account.__len__()):
+                print(f'{i+1}.',fetched_list_of_members_of_joint_account[i][0])
+                member_pin_of_ith_member = int(input(f"Please Enter pin for {fetched_list_of_members_of_joint_account[i][0]}: "))
+            
+                # this while loop compares the user entered pin with the user pin fetched fromm the database
+                while True:
+                    if(member_pin_of_ith_member == fetched_list_of_userpin_of_members_of_joint_account[i][0]):
+                        print("Authentication Succesfull 😊😊😊")
+                        break
+                    else:
+                        print("Print Authentication Unsuccessfull😡😡😡")
+                        member_pin_of_ith_member =  int(input(f"Please Enter pin for {fetched_list_of_members_of_joint_account[i][0]} again : "))
+        else:
+            print("sry account do not exist")
+            main_function()
+        
+    
+    except Exception as e:
+        print("Can't complete request becuase: ", e)
+        main_function()
+        
+        
+    # Loop for banking facilities for joint account :
+    while True:
+        facility_selected_by_user = int(input("Please Select the service to use\n\n 1. Get Account Information     2. Check Account Balance     3.Deposit Money     4.Withdraw Money     5.Transaction History     6.Go Back :  "))
+        
+        
+        if(facility_selected_by_user == 1):
+            
+            print("\nfetching account info")
+            sleep(1)
+            print("displaying account info\n")
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM joint_account_users WHERE accountNumber = %s" , [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            fetched_joint_account_details = main.cursor_to_create_tables_in_bank_Database.fetchall()
+            
+            # this loop maintains and prints the account information as per requested by user
+            for i in range(fetched_joint_account_details.__len__()):
+                
+                details_of_ith_user = fetched_joint_account_details[i]
+                
+                joint_account_user_number = i + 1
+                joint_account_number = details_of_ith_user[1]
+                joint_account_user_name = details_of_ith_user[2]
+                joint_account_user_mobile_number = details_of_ith_user[3]
+                joint_account_user_residence_city = details_of_ith_user[4]
+                joint_account_user_email = details_of_ith_user[5]
+                joint_account_user_dob = details_of_ith_user[6]
+                
+                print("*********************************************************")
+                print("Joint account number: ", joint_account_number)
+                print("Joint account user number: " , joint_account_user_number)
+                print("Joint account user name: ", joint_account_user_name)
+                print("Joint account user mobile number", joint_account_user_mobile_number)
+                print("Joint account user residence city: ", joint_account_user_residence_city)
+                print("Joint account user email: ", joint_account_user_email)
+                print("Joint account user date of birth: ", joint_account_user_dob)
+                print("*********************************************************")
+        elif(facility_selected_by_user == 2):
+            print("\nFetchin Account Balance Information")
+            sleep(1)
+            print("Displaying Account Balance Information")
+            
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT account_balance FROM joint_account_users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            integer_balance_of_joint_account_holders = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
+            
+            print("*********************************************************")
+            print("Joint Account Balance: ", integer_balance_of_joint_account_holders)
+            print("*********************************************************")
+        elif(facility_selected_by_user == 3):
+            name_of_transactor = input("Please Enter Your NAme For Transaction: ")
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT account_balance FROM joint_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            integer_balance_of_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]
+            
+            integer_amount_to_deposit_in_account = int(input("Please Enter Amount Of Money To Deposit: "))
+            integer_account_balance_after_crediting_specified_amount = int(integer_balance_of_account_holder)+integer_amount_to_deposit_in_account
+            
+            print("Processing Request")
+            sleep(2)
+            
+            try:
+                main.cursor_to_create_tables_in_bank_Database.execute("UPDATE joint_Account_Users SET account_balance = %s WHERE accountNumber = %s" , [f'{integer_account_balance_after_crediting_specified_amount}',f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+                main.bank_Database_Connection.commit()
+                print(F"Request processed, money credited successfully. UPDATED ACCOUNT BALANCE: {integer_account_balance_after_crediting_specified_amount}")
+                integer_balance_of_account_holder = integer_account_balance_after_crediting_specified_amount
+                transaction_info = [f'{account_number_entered_by_user_to_check_into_joint_account_users}', f'{integer_amount_to_deposit_in_account}', f'{name_of_transactor}', 'credited']
+                main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history_for_joint_accounts (accountNumber,amount,nameOfTransactor,transaction) VALUES (%s,%s,%s,%s) ", transaction_info)
+                main.bank_Database_Connection.commit()
+            except Exception as e:
+                print("Can't Complete Request Because: ",e) 
+            
+        elif(facility_selected_by_user == 4):
+            name_of_transactor = input("Please Enter Your Name For Transaction")
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT account_balance FROM joint_Account_Users WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            integer_balance_of_account_holder = main.cursor_to_create_tables_in_bank_Database.fetchall()[0][0]            
+            
+            integer_amount_to_withdraw_from_account = int(input("Please Enter Amount Of Money TO withdraw: "))
+            integer_account_balance_after_withdrawing_specified_amount = int(integer_balance_of_account_holder)-integer_amount_to_withdraw_from_account
+            
+            print("Processing Request")
+            sleep(2)
+            
+            try:
+                main.cursor_to_create_tables_in_bank_Database.execute("UPDATE joint_Account_Users SET account_balance = %s WHERE accountNumber = %s" , [f'{integer_account_balance_after_withdrawing_specified_amount}',f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+                main.bank_Database_Connection.commit()
+                integer_balance_of_account_holder = integer_account_balance_after_withdrawing_specified_amount
+                
+                transaction_info = [f'{account_number_entered_by_user_to_check_into_joint_account_users}', f'{integer_amount_to_withdraw_from_account}', f'{name_of_transactor}', 'debited']
+                main.cursor_to_create_tables_in_bank_Database.execute("INSERT INTO transaction_history_for_joint_accounts (accountNumber,amount,nameOfTransactor,transaction) VALUES (%s,%s,%s,%s) ", transaction_info)
+                main.bank_Database_Connection.commit()
+                
+                print(f"Request Processed, money debited succesfully. UPDATED ACCOUNT BALANCE: {integer_account_balance_after_withdrawing_specified_amount}")
+            except Exception as e:
+                print("Can't complete request because", e)
+        
+        elif (facility_selected_by_user == 5):
+            print("Fetching Your Transaction History")
+            main.cursor_to_create_tables_in_bank_Database.execute("SELECT * FROM transaction_history_for_joint_accounts WHERE accountNumber = %s", [f'{account_number_entered_by_user_to_check_into_joint_account_users}'])
+            transaction_history_of_given_joint_account = main.cursor_to_create_tables_in_bank_Database.fetchall()
+            print(transaction_history_of_given_joint_account)
+            
+        elif(facility_selected_by_user == 6):
+            main_function()
+                                                                                                                 
+                
+                    
 
 
 

@@ -75,6 +75,10 @@ try:
     )
     cursor_to_create_tables_in_bank_Database.execute("INSERT INTO joint_Account_Users (customer_id,accountNumber,joint_account_holder_name,joint_account_holder_mobile_number,joint_account_holder_city,joint_account_holder_mail,joint_account_holder_dob,joint_account_holder_userpin,account_balance) VALUES (0,0,0,0,0,0,0,0,0)")
     bank_Database_Connection.commit()
+    
+    cursor_to_create_tables_in_bank_Database.execute("CREATE TABLE transaction_history_for_joint_accounts (accountNumber INT(20), amount INT(20), nameOfTransactor VARCHAR(255), transaction VARCHAR(10))")
+    bank_Database_Connection.commit()
+    
 except:
     print("error creating table")
 

@@ -1,0 +1,20 @@
+ objectives:
+
+
+#banking facilities
+ send money to particular bank account by debit function
+
+
+#main function
+careers
+
+# Employee side
+employ login
+console::
+    all account by savings, joint selection
+    select account for details::
+        check detailed transaction history
+        send mail notice to account holder
+        delete a particular account with user authenticated permission by pin 
+        freeze a account
+        
